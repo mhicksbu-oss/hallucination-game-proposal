@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="An evolving game proposal exploring hallucination through perception, memory, and player choice."
+    />
+    <title>Hallucination — Game Proposal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to proposal</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="#intro" aria-label="Hallucination proposal home">
+        <span class="wordmark__mark" aria-hidden="true"></span>
+        <span>HALLUCINATION / <b>PROPOSAL 0.1</b></span>
+      </a>
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">
+        Index
+      </button>
+      <nav id="site-nav" class="site-nav" aria-label="Proposal sections">
+        <a href="#intro">00 Intro</a>
+        <a href="#case-study">01 Case study</a>
+        <a href="#critical-discussion">02 AI discussion</a>
+        <a href="#concept">03 Concept</a>
+        <a href="#journey">04 Journey</a>
+        <a href="#style-guide">05 Style + sound</a>
+        <a href="#build-plan">06 Build plan</a>
+      </nav>
+      <div class="reading-progress" aria-hidden="true"><span></span></div>
+    </header>
+
+    <main id="main">
+      <section id="intro" class="hero section section--dark" data-section="00">
+        <div class="hero__copy reveal">
+          <p class="eyebrow">Interactive narrative game proposal</p>
+          <h1 aria-label="Hallucination">
+            <span class="echo" data-text="HALLUCINATION">HALLUCINATION</span>
+          </h1>
+          <p class="hero__lede">
+            What if the world changed whenever you stopped looking at it?
+          </p>
+          <p class="hero__description">
+            A developing game concept about unreliable perception. The player moves through a
+            familiar place that repeatedly contradicts their memory, deciding which details to
+            trust—and which version of reality to reinforce.
+          </p>
+          <div class="hero__meta">
+            <span>Working title</span>
+            <span>Web proposal</span>
+            <span>Research in progress</span>
+          </div>
+        </div>
+
+        <div class="hero__visual" aria-label="Abstract representative visual: a doorway splitting into misaligned layers">
+          <div class="portal portal--rear"></div>
+          <div class="portal portal--middle"></div>
+          <div class="portal portal--front">
+            <span class="portal__light"></span>
+          </div>
+          <p class="visual-note">REPRESENTATIVE VISUAL / TEMPORARY</p>
+        </div>
+      </section>
+
+      <section id="case-study" class="section section--paper" data-section="01">
+        <header class="section-heading reveal">
+          <p class="section-number">01 / CASE STUDY</p>
+          <div>
+            <p class="eyebrow">Reference game</p>
+            <h2>The Ratchelor</h2>
+          </div>
+          <p class="section-summary">
+            A compact browser dating game whose personality emerges through selection,
+            conversation, reaction, and ritualized elimination.
+          </p>
+        </header>
+
+        <div class="case-grid">
+          <article class="case-card case-card--feature reveal">
+            <div class="case-card__image ratchelor-placeholder" role="img" aria-label="Graphic placeholder for a credited Ratchelor game image">
+              <span>IMAGE PENDING<br />CREATOR-SOURCE CHECK</span>
+            </div>
+            <div>
+              <p class="label">Created by Algorat</p>
+              <p>
+                Char Stiles, Connie Ye, Tatyana Mustakos, and Caroline Hermans. Tatyana
+                Mustakos identifies herself as art director and lead artist, with additional
+                work on character development, dialogue, reaction systems, and UI design.
+              </p>
+              <div class="source-links" aria-label="Primary sources">
+                <a href="https://algorat.club/" target="_blank" rel="noreferrer">Official project ↗</a>
+                <a href="https://algorat.itch.io/the-ratchelor-a-rat-dating-sim" target="_blank" rel="noreferrer">itch.io ↗</a>
+                <a href="https://tademu.com/projects/ratchelor.html" target="_blank" rel="noreferrer">Creator notes ↗</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="case-card reveal">
+            <p class="label">Player experience</p>
+            <h3>From 21 rats to one</h3>
+            <p>
+              Choose a Ratchelor, select seven contestants, meet them through short
+              conversations, and give roses until only one potential soulmate remains.
+            </p>
+          </article>
+
+          <article class="case-card reveal">
+            <p class="label">Design observation</p>
+            <h3>Rejection without cruelty</h3>
+            <p>
+              The elimination structure creates stakes, while epilogues give every rejected
+              contestant a future. The competitive format is softened without removing choice.
+            </p>
+          </article>
+        </div>
+
+        <div class="evidence-block reveal">
+          <div>
+            <p class="label">Meaningful moments / to document after replay</p>
+            <ol class="moment-list">
+              <li><span>01</span><p>Choosing which rat will represent the player.</p></li>
+              <li><span>02</span><p>Discovering personality through a surprising conversation response.</p></li>
+              <li><span>03</span><p>The final proposal followed by epilogues for eliminated rats.</p></li>
+            </ol>
+          </div>
+          <div>
+            <p class="label">Player-action events</p>
+            <ul class="event-list">
+              <li>Choose an avatar</li>
+              <li>Inspect contestant profiles</li>
+              <li>Select seven contestants</li>
+              <li>Choose dialogue responses</li>
+              <li>Read character reactions</li>
+              <li>Give or withhold roses</li>
+              <li>Propose to the finalist</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="critical-discussion" class="section section--ink" data-section="02">
+        <header class="section-heading reveal">
+          <p class="section-number">02 / CRITICAL DISCUSSION WITH AI</p>
+          <div>
+            <p class="eyebrow">Evidence, uncertainty, decision</p>
+            <h2>Research is not proof until it survives a source check.</h2>
+          </div>
+        </header>
+
+        <div class="discussion-grid">
+          <article class="transcript reveal">
+            <p class="label">Selected exchange / condensed</p>
+            <div class="message message--user">
+              <span>Designer</span>
+              <p>Who made the game, and what did they intend visually and sonically?</p>
+            </div>
+            <div class="message message--ai">
+              <span>AI research</span>
+              <p>
+                Four Algorat members are collectively credited. Mustakos documents her art,
+                writing, reaction-system, and UI roles. The game only credits its sound sources
+                as YouTube Audio Library, Freesound, and Mixkit; no track list or sound-design
+                rationale was found.
+              </p>
+            </div>
+            <div class="message message--user">
+              <span>Designer</span>
+              <p>Then individual roles and sound intentions must remain open questions.</p>
+            </div>
+          </article>
+
+          <div class="research-ledger reveal">
+            <article>
+              <p class="label">Verified</p>
+              <p>Collective membership, game loop, Mustakos’s roles, and credited sound libraries.</p>
+            </article>
+            <article>
+              <p class="label">Gap 01</p>
+              <p>No project-specific role breakdown for Stiles, Ye, or Hermans.</p>
+            </article>
+            <article>
+              <p class="label">Gap 02</p>
+              <p>No named tracks, composers, or creator explanation of the audio direction.</p>
+            </article>
+            <article class="decision">
+              <p class="label">My conclusion → design decision</p>
+              <p>
+                Clearly separate evidence from interpretation. In my own game, every asset and
+                design role will be credited, while perceptual ambiguity remains inside the
+                fiction—not inside the documentation.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="concept" class="section section--mist" data-section="03">
+        <header class="section-heading reveal">
+          <p class="section-number">03 / NARRATIVE + CONCEPT</p>
+          <div>
+            <p class="eyebrow">Working hypothesis</p>
+            <h2>A hallucination is a negotiation with missing evidence.</h2>
+          </div>
+        </header>
+
+        <div class="concept-grid">
+          <article class="concept-statement reveal">
+            <p>
+              The game will not ask the player to identify one “correct” reality. It will ask
+              how they behave when perception, memory, and external evidence disagree.
+            </p>
+          </article>
+          <article class="concept-detail reveal">
+            <p class="label">World</p>
+            <h3>A familiar place with unstable continuity</h3>
+            <p>Rooms, objects, text, and sounds change when attention moves elsewhere.</p>
+          </article>
+          <article class="concept-detail reveal">
+            <p class="label">Player role</p>
+            <h3>Observer and accidental author</h3>
+            <p>Each act of noticing strengthens one version of the environment.</p>
+          </article>
+          <article class="concept-detail reveal">
+            <p class="label">Intended experience</p>
+            <h3>Curiosity → doubt → responsibility</h3>
+            <p>The player gradually realizes that choosing what to trust also changes the world.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="journey" class="section section--paper" data-section="04">
+        <header class="section-heading reveal">
+          <p class="section-number">04 / INTERACTION + PLAYER JOURNEY</p>
+          <div>
+            <p class="eyebrow">Draft structure</p>
+            <h2>The world changes in the player’s blind spot.</h2>
+          </div>
+        </header>
+
+        <div class="flowchart reveal" role="img" aria-label="Draft flowchart from opening through three stages to one of two endings">
+          <div class="flow-node flow-node--start"><span>Opening</span><b>Notice the first contradiction</b></div>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node"><span>Stage 01</span><b>Compare</b></div>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node"><span>Stage 02</span><b>Test</b></div>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node"><span>Stage 03</span><b>Commit</b></div>
+          <span class="flow-arrow" aria-hidden="true">→</span>
+          <div class="flow-node flow-node--end"><span>Ending</span><b>Live with the chosen version</b></div>
+        </div>
+
+        <div class="storyboard reveal" aria-label="Draft storyboard">
+          <article><span>01</span><div class="frame frame--one"></div><h3>Arrival</h3><p>Everything appears ordinary.</p></article>
+          <article><span>02</span><div class="frame frame--two"></div><h3>Mismatch</h3><p>An object contradicts memory.</p></article>
+          <article><span>03</span><div class="frame frame--three"></div><h3>Experiment</h3><p>Looking away becomes an action.</p></article>
+          <article><span>04</span><div class="frame frame--four"></div><h3>Consequence</h3><p>Attention fixes one reality in place.</p></article>
+        </div>
+        <p class="draft-note">Draft only — stages, ending logic, and storyboard shots will evolve with concept research and playtesting.</p>
+      </section>
+
+      <section id="style-guide" class="section section--signal" data-section="05">
+        <header class="section-heading reveal">
+          <p class="section-number">05 / STYLE + SOUND GUIDE</p>
+          <div>
+            <p class="eyebrow">Direction to validate</p>
+            <h2>Clean evidence. Unstable perception.</h2>
+          </div>
+        </header>
+
+        <div class="style-grid">
+          <article class="style-card reveal">
+            <p class="label">Visual system</p>
+            <div class="swatches" aria-label="Provisional color palette">
+              <span style="--swatch:#e7ff4f">Acid signal</span>
+              <span style="--swatch:#ff5c8a">False warmth</span>
+              <span style="--swatch:#7167ff">Afterimage</span>
+              <span style="--swatch:#101112">Ground</span>
+            </div>
+            <p>Chromatic separation and displaced layers appear only when reality becomes unstable.</p>
+          </article>
+          <article class="style-card reveal">
+            <p class="label">Interface</p>
+            <div class="type-sample"><span>MANROPE / OBSERVATION</span><b>DM MONO / EVIDENCE 04:17</b></div>
+            <p>A restrained editorial layout keeps navigation trustworthy while the represented world misbehaves.</p>
+          </article>
+          <article class="style-card reveal">
+            <p class="label">Motion</p>
+            <div class="motion-sample"><i></i><i></i><i></i></div>
+            <p>Slow drift, delayed echoes, and hard discontinuities. Motion must reveal state changes, not decorate them.</p>
+          </article>
+          <article class="style-card reveal">
+            <p class="label">Sound</p>
+            <div class="waveform" aria-hidden="true">▁▂▂▃▅▇▅▃▂▁▂▄▆▄▂▁</div>
+            <p>Room tone, positional clues, and small repetitions that fall out of sync. References and credits are still to be researched.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="build-plan" class="section section--ink" data-section="06">
+        <header class="section-heading reveal">
+          <p class="section-number">06 / TWO-WEEK BUILD PLAN</p>
+          <div>
+            <p class="eyebrow">Production scope</p>
+            <h2>Build the perceptual rule, then test whether players understand it.</h2>
+          </div>
+        </header>
+
+        <div class="plan-grid">
+          <article class="week reveal">
+            <span class="week__number">W2</span>
+            <div>
+              <p class="label">Build</p>
+              <h3>One complete playable path</h3>
+              <ul>
+                <li>Opening and three short stages</li>
+                <li>Look-away / return state-change mechanic</li>
+                <li>Temporary visual and audio assets</li>
+                <li>One ending with tracked player choices</li>
+                <li>Basic accessibility and restart controls</li>
+              </ul>
+            </div>
+          </article>
+          <article class="week reveal">
+            <span class="week__number">W3</span>
+            <div>
+              <p class="label">Test + refine</p>
+              <h3>Make uncertainty legible</h3>
+              <ul>
+                <li>Observe at least three playtests</li>
+                <li>Test recognition of the core rule</li>
+                <li>Refine pacing, cues, and ending feedback</li>
+                <li>Replace temporary assets and complete credits</li>
+                <li>Document findings in this proposal</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>HALLUCINATION / GAME PROPOSAL</p>
+      <p>An evolving research and design document.</p>
+      <a href="#intro">Return to the beginning ↑</a>
+    </footer>
+  </body>
+</html>
