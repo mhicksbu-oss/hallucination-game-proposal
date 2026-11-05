@@ -86,7 +86,25 @@ button, input { font: inherit; }
 .case-card h3 { margin: 2rem 0 .7rem; font-size: 1.8rem; line-height: 1.05; }
 .case-card--feature { grid-row: span 2; display: grid; gap: 2rem; }
 .case-card__image { min-height: 420px; }
-.ratchelor-placeholder { display: grid; place-items: center; text-align: center; color: #5c3c52; background: radial-gradient(circle at 50% 42%, #fff2f5 0 14%, transparent 14.5%), repeating-radial-gradient(circle at 50% 50%, #f2a4b9 0 8px, #efbfd0 9px 18px); border: 1px solid #cb809d; font: .68rem var(--mono); letter-spacing: .08em; }
+.ratchelor-figure { margin: 0; }
+.ratchelor-art {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  color: #4e1d3c;
+  background: #f8b7c3 url("assets/ratchelor-official-wallpaper.png") center / 360px auto;
+  border: 1px solid #cb809d;
+  text-decoration: none;
+  isolation: isolate;
+}
+.ratchelor-art::before { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, rgba(255,255,255,.15), rgba(255,92,138,.18)); z-index: -1; }
+.ratchelor-art__frame { position: absolute; inset: 5% 4%; width: 92%; height: 90%; object-fit: fill; }
+.ratchelor-art__character { position: absolute; z-index: 1; left: 10%; bottom: -2%; width: min(35%, 220px); max-height: 78%; object-fit: contain; filter: drop-shadow(10px 14px 0 rgba(78,29,60,.15)); transition: transform .25s ease; }
+.ratchelor-art__title { position: absolute; z-index: 2; right: 11%; top: 25%; text-align: right; font-size: clamp(2.35rem, 5vw, 4.8rem); font-weight: 800; line-height: .78; letter-spacing: -.075em; text-shadow: 3px 3px 0 #fff0f2; }
+.ratchelor-art__cta { position: absolute; z-index: 2; right: 11%; bottom: 19%; padding: .5rem .7rem; color: #fff8ee; background: #4e1d3c; font: .62rem var(--mono); letter-spacing: .07em; }
+.ratchelor-art:hover .ratchelor-art__character { transform: rotate(-2deg) scale(1.035); }
+.ratchelor-figure figcaption { margin-top: .65rem; color: #6b6268; font: .62rem var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.ratchelor-figure figcaption a { color: var(--ink); }
 .source-links { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.5rem; }
 .source-links a { padding: .55rem .75rem; border: 1px solid var(--ink); text-decoration: none; font: .65rem var(--mono); text-transform: uppercase; }
 .source-links a:hover { color: var(--paper); background: var(--ink); }
