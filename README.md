@@ -1,4 +1,4 @@
-# Hallucination — Game Proposal Website
+# Don't Look Twice — Game Proposal Website
 
 An evolving, research-backed proposal website for a game about unreliable perception.
 

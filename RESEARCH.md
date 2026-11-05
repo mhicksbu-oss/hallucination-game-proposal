@@ -1,4 +1,4 @@
-# Hallucination Game Proposal — Research Ledger
+# Don't Look Twice Game Proposal — Research Ledger
 
 This file preserves verified research, interpretation, open questions, and design decisions separately. The website is an evolving presentation layer; this ledger is the source record.
 
@@ -77,7 +77,7 @@ The in-game Credits panel states: “Sounds from Youtube Audio Library, Freesoun
 
 ## Current working concept
 
-- Working title: **Hallucination**
+- Working title: **Don't Look Twice**
 - Premise: the environment changes whenever the player stops looking at it.
 - Interpretation: hallucination as a negotiation between perception, memory, and missing evidence.
 - Intended emotional arc: curiosity → doubt → responsibility.
