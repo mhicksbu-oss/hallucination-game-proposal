@@ -111,6 +111,8 @@ button { color: inherit; }
 .blindfold__noise { position: absolute; width: 50vw; height: 50vw; left: 25%; top: 25%; border-radius: 50%; background: var(--violet); filter: blur(180px); opacity: .12; animation: wander 2.8s infinite alternate; }
 .blindfold p { position: relative; margin: 0; font: clamp(1rem,2.5vw,2rem) var(--mono); letter-spacing: .14em; }
 .blindfold span { position: relative; margin-top: 1rem; color: #777780; font-size: .9rem; }
+.blindfold__return { position: relative; margin: 2rem auto 0; min-width: 220px; }
+.blindfold__return span { margin: 0; color: inherit; }
 
 .control-deck { display: flex; align-items: center; justify-content: space-between; gap: 2rem; margin-top: 1.25rem; }
 .certainty { display: grid; grid-template-columns: auto auto auto; align-items: center; gap: 1rem; color: #85858b; font: .58rem var(--mono); letter-spacing: .06em; }

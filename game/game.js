@@ -50,6 +50,7 @@ const ui = {
   ending: document.querySelector('#endingScreen'),
   startButton: document.querySelector('#startButton'),
   lookButton: document.querySelector('#lookButton'),
+  blindfoldReturn: document.querySelector('#blindfoldReturn'),
   replayButton: document.querySelector('#replayButton'),
   soundToggle: document.querySelector('#soundToggle'),
   stageLabel: document.querySelector('#stageLabel'),
@@ -162,6 +163,7 @@ function lookAway() {
     ui.stageInstruction.textContent = 'You can return, but the room will not wait forever.';
     tone(146.8, .55, .045, 'sawtooth');
     announce('You look away. ' + stage.blindfold + ' Press Look Again to return.');
+    ui.blindfoldReturn.focus();
     return;
   }
 
@@ -288,6 +290,8 @@ ui.lookButton.addEventListener('click', () => {
   if (state.phase === 'answered') advance();
   else lookAway();
 });
+
+ui.blindfoldReturn.addEventListener('click', lookAway);
 
 ui.soundToggle.addEventListener('click', () => {
   state.sound = !state.sound;
