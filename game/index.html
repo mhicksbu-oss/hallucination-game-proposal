@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0b0d" />
+    <meta
+      name="description"
+      content="Don't Look Twice — a short browser game about memory, attention, and an unstable room."
+    />
+    <title>Don't Look Twice — Play</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="game.css?v=20261106" />
+    <script src="game.js?v=20261106" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#game">Skip to game</a>
+
+    <header class="game-header">
+      <a class="brand" href="../" aria-label="Return to the Don't Look Twice proposal">
+        <span class="brand__signal" aria-hidden="true"></span>
+        DON'T LOOK TWICE
+      </a>
+      <div class="game-header__status">
+        <span id="stageLabel">PROLOGUE / 00</span>
+        <button id="soundToggle" class="icon-button" type="button" aria-pressed="false">
+          SOUND: OFF
+        </button>
+      </div>
+    </header>
+
+    <main id="game" class="game-shell">
+      <section id="startScreen" class="screen screen--start" aria-labelledby="gameTitle">
+        <div class="start-copy">
+          <p class="kicker">A SHORT PERCEPTUAL GAME</p>
+          <h1 id="gameTitle">
+            <span>DON'T LOOK</span>
+            <span>TWICE</span>
+          </h1>
+          <p class="premise">
+            You know this room. At least, you remember knowing it. Look carefully—each time
+            your attention leaves, the room may choose a different history.
+          </p>
+          <button id="startButton" class="primary-button" type="button">
+            ENTER THE ROOM <span aria-hidden="true">→</span>
+          </button>
+          <p class="controls-note">HEADPHONES RECOMMENDED · KEYBOARD: SPACE / ENTER · 5–7 MINUTES</p>
+        </div>
+        <div class="start-portal" aria-hidden="true">
+          <div class="start-portal__echo start-portal__echo--one"></div>
+          <div class="start-portal__echo start-portal__echo--two"></div>
+          <div class="start-portal__door"><span></span></div>
+        </div>
+      </section>
+
+      <section id="playScreen" class="screen screen--play" hidden aria-live="polite">
+        <div class="stage-copy">
+          <p id="stageKicker" class="kicker">STAGE 01 / ARRIVAL</p>
+          <h2 id="stageTitle">Remember the room.</h2>
+          <p id="stageInstruction">Study the details. When you are ready, look away.</p>
+        </div>
+
+        <div id="room" class="room" data-stage="0" data-phase="observe" aria-label="An illustrated room containing a portrait, clock, plant, lamp, door, table, and note">
+          <div class="room__grain" aria-hidden="true"></div>
+          <div class="room__ceiling" aria-hidden="true"></div>
+          <div class="room__wall" aria-hidden="true">
+            <div class="portrait room-object" data-object="portrait">
+              <div class="portrait__frame">
+                <div class="portrait__face"><i></i><i></i><b></b></div>
+              </div>
+              <span class="object-label">PORTRAIT</span>
+            </div>
+            <div class="clock room-object" data-object="clock">
+              <span id="clockText">04:17</span>
+              <small class="object-label">CLOCK</small>
+            </div>
+            <div class="door room-object" data-object="door">
+              <span id="doorNumber" class="door__number">12</span>
+              <i class="door__handle"></i>
+              <small class="object-label">DOOR</small>
+            </div>
+          </div>
+          <div class="room__floor" aria-hidden="true"></div>
+          <div class="lamp room-object" data-object="lamp">
+            <span class="lamp__shade"></span><span class="lamp__stem"></span><span class="lamp__base"></span>
+            <small class="object-label">LAMP</small>
+          </div>
+          <div class="plant room-object" data-object="plant">
+            <span class="plant__leaf plant__leaf--1"></span><span class="plant__leaf plant__leaf--2"></span>
+            <span class="plant__leaf plant__leaf--3"></span><span class="plant__leaf plant__leaf--4"></span>
+            <span class="plant__pot"></span><small class="object-label">PLANT</small>
+          </div>
+          <div class="table room-object" data-object="note">
+            <span class="table__top"></span><span class="table__leg table__leg--l"></span><span class="table__leg table__leg--r"></span>
+            <span id="noteText" class="note">WAIT HERE</span><small class="object-label">NOTE</small>
+          </div>
+          <div id="radio" class="radio room-object" data-object="radio">
+            <span class="radio__dial"></span><span id="radioFrequency" class="radio__frequency">88.3</span>
+            <small class="object-label">RADIO</small>
+          </div>
+        </div>
+
+        <div id="blindfold" class="blindfold" hidden aria-hidden="true">
+          <div class="blindfold__noise"></div>
+          <p>YOU ARE NO LONGER LOOKING.</p>
+          <span id="blindfoldMessage">The room exhales.</span>
+        </div>
+
+        <div class="control-deck">
+          <div class="certainty" aria-label="Memory record">
+            <span>MEMORY RECORD</span>
+            <div id="memoryPips" class="certainty__pips" aria-hidden="true"><i></i><i></i><i></i></div>
+            <strong id="memoryScore">UNTESTED</strong>
+          </div>
+          <div id="actionArea" class="action-area">
+            <button id="lookButton" class="primary-button primary-button--look" type="button">
+              LOOK AWAY <span aria-hidden="true">◉</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="choicePanel" class="choice-panel" hidden>
+          <p id="choicePrompt">What changed?</p>
+          <div id="choiceButtons" class="choice-buttons"></div>
+        </div>
+      </section>
+
+      <section id="finalChoiceScreen" class="screen screen--decision" hidden aria-labelledby="decisionTitle">
+        <div>
+          <p class="kicker">FINAL / THE ROOM IS WAITING</p>
+          <h2 id="decisionTitle">Which reality should remain?</h2>
+          <p>
+            You have compared memory with evidence three times. The room will accept one final
+            instruction—but it will not tell you which version was ever true.
+          </p>
+        </div>
+        <div class="decision-grid">
+          <button class="decision-card" type="button" data-final="memory">
+            <span>01</span><strong>TRUST MEMORY</strong><small>Restore what you first believed.</small>
+          </button>
+          <button class="decision-card" type="button" data-final="evidence">
+            <span>02</span><strong>TRUST EVIDENCE</strong><small>Keep what is visible now.</small>
+          </button>
+          <button class="decision-card" type="button" data-final="instinct">
+            <span>03</span><strong>TRUST INSTINCT</strong><small>Refuse both versions.</small>
+          </button>
+        </div>
+      </section>
+
+      <section id="endingScreen" class="screen screen--ending" hidden aria-labelledby="endingTitle">
+        <div class="ending-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <p id="endingCode" class="kicker">ENDING 01 / THE WITNESS</p>
+        <h2 id="endingTitle">The room remembers you back.</h2>
+        <p id="endingText" class="ending-text"></p>
+        <div class="ending-record">
+          <span>CHANGES RECOGNIZED <strong id="finalScore">0 / 3</strong></span>
+          <span>REALITY PRESERVED <strong id="finalTrust">MEMORY</strong></span>
+        </div>
+        <div class="ending-actions">
+          <button id="replayButton" class="primary-button" type="button">PLAY AGAIN ↻</button>
+          <a class="secondary-button" href="../#concept">READ THE PROPOSAL ↗</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="game-footer">
+      <span>PROTOTYPE 01 · 2026</span>
+      <span>DESIGNED FOR THE “HALLUCINATION” THEME</span>
+    </footer>
+
+    <div id="liveRegion" class="sr-only" aria-live="assertive"></div>
+  </body>
+</html>

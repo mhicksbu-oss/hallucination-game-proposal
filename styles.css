@@ -71,6 +71,11 @@ button, input { font: inherit; }
 .echo::after { color: var(--violet); transform: translate(5px, -2px); clip-path: inset(53% 0 6%); }
 .hero__lede { max-width: 650px; margin: 0 0 1rem; font-size: clamp(1.4rem, 2.5vw, 2.5rem); line-height: 1.2; }
 .hero__description { max-width: 610px; color: rgba(255,255,255,.64); }
+.hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.4rem; margin-top: 2rem; }
+.play-button { min-height: 50px; padding: .85rem 1.05rem; display: inline-flex; align-items: center; gap: 2.5rem; color: var(--ink); background: var(--signal); border: 1px solid var(--signal); text-decoration: none; font: .7rem var(--mono); text-transform: uppercase; transition: transform .2s, background .2s; }
+.play-button:hover { background: #f2ff9b; transform: translateY(-2px); }
+.text-link { color: rgba(255,255,255,.65); font: .65rem var(--mono); text-transform: uppercase; }
+.text-link:hover { color: var(--paper-bright); }
 .hero__meta { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 2rem; }
 .hero__meta span { padding: .45rem .7rem; border: 1px solid var(--line-light); font: .63rem var(--mono); text-transform: uppercase; }
 .hero__visual { position: relative; min-height: 600px; perspective: 1000px; }
