@@ -15,8 +15,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="game.css?v=20261106-3" />
-    <script src="game.js?v=20261106-3" defer></script>
+    <link rel="stylesheet" href="game.css?v=20261106-4" />
+    <script src="game.js?v=20261106-4" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#game">Skip to game</a>
@@ -28,8 +28,8 @@
       </a>
       <div class="game-header__status">
         <span id="stageLabel">PROLOGUE / 00</span>
-        <button id="soundToggle" class="icon-button" type="button" aria-pressed="false">
-          SOUND: OFF
+        <button id="soundToggle" class="icon-button" type="button" aria-pressed="true">
+          SOUND: ON
         </button>
       </div>
     </header>
@@ -49,7 +49,12 @@
           <button id="startButton" class="primary-button" type="button">
             ENTER THE ROOM <span aria-hidden="true">→</span>
           </button>
-          <p class="controls-note">HEADPHONES RECOMMENDED · KEYBOARD: SPACE / ENTER · 5–7 MINUTES</p>
+          <p class="controls-note">SOUND BEGINS ON ENTRY · KEYBOARD: SPACE / ENTER · 5–7 MINUTES</p>
+          <ol class="how-to" aria-label="How to play">
+            <li><span>01</span><strong>MEMORIZE</strong><small>Study the room before time runs out.</small></li>
+            <li><span>02</span><strong>RETURN</strong><small>Look again and identify what changed.</small></li>
+            <li><span>03</span><strong>DECIDE</strong><small>Choose how to respond. Your actions shape the ending.</small></li>
+          </ol>
         </div>
         <div class="start-portal" aria-hidden="true">
           <div class="start-portal__echo start-portal__echo--one"></div>
@@ -63,6 +68,12 @@
           <p id="stageKicker" class="kicker">STAGE 01 / ARRIVAL</p>
           <h2 id="stageTitle">Remember the room.</h2>
           <p id="stageInstruction">Study the details. When you are ready, look away.</p>
+        </div>
+
+        <div class="mission-bar">
+          <span>YOUR OBJECTIVE</span>
+          <p id="missionText">Memorize the room. After you look away, identify what changed.</p>
+          <div class="mission-progress" aria-label="Three-room progress"><i></i><i></i><i></i></div>
         </div>
 
         <div id="room" class="room" data-stage="0" data-phase="observe" aria-label="An illustrated room containing a portrait, clock, plant, lamp, door, table, and note">
@@ -119,6 +130,11 @@
             <span>MEMORY RECORD</span>
             <div id="memoryPips" class="certainty__pips" aria-hidden="true"><i></i><i></i><i></i></div>
             <strong id="memoryScore">UNTESTED</strong>
+          </div>
+          <div id="countdown" class="countdown" aria-live="polite">
+            <span id="timerLabel">MEMORIZE</span>
+            <strong id="timerValue">20</strong>
+            <div class="countdown__track" aria-hidden="true"><i id="timerBar"></i></div>
           </div>
           <div id="actionArea" class="action-area">
             <button id="lookButton" class="primary-button primary-button--look" type="button">

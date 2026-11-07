@@ -11,7 +11,13 @@ const stages = [
       { id: 'plant', label: 'THE PLANT' }
     ],
     correct: 'portrait',
-    blindfold: 'A face rearranges itself in the dark.'
+    blindfold: 'A face rearranges itself in the dark.',
+    actionPrompt: 'The portrait is smiling now. How do you respond?',
+    actions: [
+      { id: 'confront', label: 'SPEAK TO IT', detail: 'Ask the portrait what it wants.', trait: 'instinct' },
+      { id: 'document', label: 'TAKE A PHOTO', detail: 'Create evidence before it changes again.', trait: 'evidence' },
+      { id: 'restore', label: 'TURN IT AROUND', detail: 'Reject the new version of the room.', trait: 'memory' }
+    ]
   },
   {
     kicker: 'STAGE 02 / MISMATCH',
@@ -25,7 +31,13 @@ const stages = [
       { id: 'note', label: 'THE NOTE' }
     ],
     correct: 'door',
-    blindfold: 'A small mechanism crosses from right to left.'
+    blindfold: 'A small mechanism crosses from right to left.',
+    actionPrompt: 'The handle has crossed to the other side. What now?',
+    actions: [
+      { id: 'open', label: 'OPEN THE DOOR', detail: 'Risk whatever is waiting beyond it.', trait: 'instinct' },
+      { id: 'mark', label: 'MARK ITS POSITION', detail: 'Draw a line around the handle.', trait: 'evidence' },
+      { id: 'barricade', label: 'BARRICADE IT', detail: 'Force the room to keep this version.', trait: 'memory' }
+    ]
   },
   {
     kicker: 'STAGE 03 / CONSEQUENCE',
@@ -39,7 +51,13 @@ const stages = [
       { id: 'clock', label: 'THE CLOCK' }
     ],
     correct: 'radio',
-    blindfold: 'A voice searches the dial for your name.'
+    blindfold: 'A voice searches the dial for your name.',
+    actionPrompt: 'The radio is broadcasting your own voice. Choose quickly.',
+    actions: [
+      { id: 'answer', label: 'ANSWER THE VOICE', detail: 'Tell it which version is real.', trait: 'instinct' },
+      { id: 'record', label: 'RECORD THE SIGNAL', detail: 'Preserve the impossible transmission.', trait: 'evidence' },
+      { id: 'destroy', label: 'SMASH THE RADIO', detail: 'Silence the room before it speaks again.', trait: 'memory' }
+    ]
   }
 ];
 
@@ -63,6 +81,12 @@ const ui = {
   choicePanel: document.querySelector('#choicePanel'),
   choicePrompt: document.querySelector('#choicePrompt'),
   choiceButtons: document.querySelector('#choiceButtons'),
+  missionText: document.querySelector('#missionText'),
+  missionPips: [...document.querySelectorAll('.mission-progress i')],
+  countdown: document.querySelector('#countdown'),
+  timerLabel: document.querySelector('#timerLabel'),
+  timerValue: document.querySelector('#timerValue'),
+  timerBar: document.querySelector('#timerBar'),
   pips: [...document.querySelectorAll('#memoryPips i')],
   memoryScore: document.querySelector('#memoryScore'),
   endingCode: document.querySelector('#endingCode'),
@@ -73,9 +97,12 @@ const ui = {
   liveRegion: document.querySelector('#liveRegion')
 };
 
-let state = { stage: 0, phase: 'observe', answers: [], sound: false, final: null };
+let state = { stage: 0, phase: 'observe', answers: [], responses: [], sound: true, final: null };
 let audioContext;
 let ambientNodes = [];
+let musicInterval;
+let timerInterval;
+let timerDeadline = 0;
 
 function showScreen(screen) {
   [ui.start, ui.play, ui.finalChoice, ui.ending].forEach((item) => { item.hidden = item !== screen; });
@@ -85,6 +112,41 @@ function showScreen(screen) {
 function announce(message) {
   ui.liveRegion.textContent = '';
   window.setTimeout(() => { ui.liveRegion.textContent = message; }, 30);
+}
+
+function stopTimer(label = 'PAUSED') {
+  window.clearInterval(timerInterval);
+  timerInterval = null;
+  ui.timerLabel.textContent = label;
+  ui.timerValue.textContent = '—';
+  ui.timerBar.style.transform = 'scaleX(0)';
+  ui.countdown.classList.remove('urgent');
+  ui.countdown.classList.add('paused');
+}
+
+function startTimer(seconds, label, onExpire) {
+  window.clearInterval(timerInterval);
+  const duration = seconds * 1000;
+  timerDeadline = Date.now() + duration;
+  ui.timerLabel.textContent = label;
+  ui.countdown.classList.remove('paused', 'urgent');
+
+  const update = () => {
+    const remainingMs = Math.max(0, timerDeadline - Date.now());
+    const remaining = Math.ceil(remainingMs / 1000);
+    ui.timerValue.textContent = String(remaining).padStart(2, '0');
+    ui.timerBar.style.transform = `scaleX(${remainingMs / duration})`;
+    ui.countdown.classList.toggle('urgent', remaining <= 5);
+    if (remaining > 0 && remaining <= 5 && remainingMs % 1000 > 850) tone(72 + remaining * 5, .12, .025, 'square');
+    if (remainingMs <= 0) {
+      window.clearInterval(timerInterval);
+      timerInterval = null;
+      onExpire();
+    }
+  };
+
+  update();
+  timerInterval = window.setInterval(update, 100);
 }
 
 function initAudio() {
@@ -124,9 +186,22 @@ function startAmbient() {
   });
   gain.connect(audioContext.destination);
   ambientNodes.push(gain);
+
+  const notes = [110, 130.81, 98, 146.83];
+  let step = 0;
+  const pulse = () => {
+    if (!state.sound) return;
+    tone(notes[step % notes.length], .65, .018, 'triangle');
+    if (step % 2 === 0) window.setTimeout(() => tone(notes[(step + 2) % notes.length] * 2, .3, .012, 'sine'), 280);
+    step += 1;
+  };
+  pulse();
+  musicInterval = window.setInterval(pulse, 900);
 }
 
 function stopAmbient() {
+  window.clearInterval(musicInterval);
+  musicInterval = null;
   ambientNodes.forEach((node) => {
     try { if (typeof node.stop === 'function') node.stop(); } catch (error) { /* already stopped */ }
     try { node.disconnect(); } catch (error) { /* already disconnected */ }
@@ -141,6 +216,10 @@ function renderStage() {
   ui.stageKicker.textContent = stage.kicker;
   ui.stageTitle.textContent = stage.title;
   ui.stageInstruction.textContent = stage.observe;
+  ui.missionText.textContent = 'Memorize the room. You have 20 seconds, or you can look away early.';
+  ui.missionPips.forEach((pip, index) => {
+    pip.className = index < state.stage ? 'complete' : index === state.stage ? 'active' : '';
+  });
   ui.room.dataset.stage = String(state.stage);
   ui.room.dataset.phase = 'observe';
   ui.room.classList.remove('mutated', 'is-shifting');
@@ -149,12 +228,19 @@ function renderStage() {
   ui.lookButton.hidden = false;
   ui.lookButton.innerHTML = 'LOOK AWAY <span aria-hidden="true">◉</span>';
   updateMemory();
+  startTimer(20, 'MEMORIZE', () => {
+    if (state.phase === 'observe') {
+      announce('Time expired. The room changes while you look away.');
+      lookAway();
+    }
+  });
   announce(`${stage.kicker}. ${stage.title} ${stage.observe}`);
 }
 
 function lookAway() {
   const stage = stages[state.stage];
   if (state.phase === 'observe') {
+    stopTimer('LOOK AWAY');
     state.phase = 'away';
     ui.room.dataset.phase = 'away';
     ui.blindfoldMessage.textContent = stage.blindfold;
@@ -175,7 +261,9 @@ function lookAway() {
     ui.room.dataset.phase = 'changed';
     ui.lookButton.hidden = true;
     ui.stageInstruction.textContent = stage.returnText;
+    ui.missionText.textContent = 'Identify the changed detail before the evidence becomes unreliable.';
     renderChoices(stage);
+    startTimer(15, 'DECIDE', () => timeoutChoice());
     tone(220 + state.stage * 35, .22, .05, 'square');
     window.setTimeout(() => tone(329.6 + state.stage * 28, .45, .03), 100);
     announce(`You look again. ${stage.returnText} ${stage.prompt}`);
@@ -183,13 +271,16 @@ function lookAway() {
 }
 
 function renderChoices(stage) {
+  ui.choicePanel.classList.remove('action-choice');
   ui.choicePrompt.textContent = stage.prompt;
   ui.choiceButtons.replaceChildren();
   stage.choices.forEach((choice) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.dataset.choice = choice.id;
-    button.textContent = choice.label;
+    const label = document.createElement('strong');
+    label.textContent = choice.label;
+    button.append(label);
     button.addEventListener('click', () => selectChoice(choice.id));
     ui.choiceButtons.append(button);
   });
@@ -202,13 +293,62 @@ function selectChoice(choice) {
   const stage = stages[state.stage];
   const correct = choice === stage.correct;
   state.answers.push({ stage: state.stage, choice, correct });
-  state.phase = 'answered';
+  state.phase = 'respond';
+  stopTimer('CHOICE LOCKED');
   tone(correct ? 523.25 : 164.81, .42, .05, correct ? 'sine' : 'sawtooth');
   updateMemory();
-  ui.choicePanel.hidden = true;
   ui.stageInstruction.textContent = correct
     ? 'Your memory and the room agree—for now.'
     : 'The room accepts your answer without confirming it.';
+  ui.missionText.textContent = correct
+    ? 'You caught the contradiction. Now decide what your character does.'
+    : 'Certainty is gone. Your response still determines what happens next.';
+  renderActionChoices(stage);
+  announce(`${ui.stageInstruction.textContent} ${stage.actionPrompt}`);
+}
+
+function timeoutChoice() {
+  if (state.phase !== 'choose') return;
+  const stage = stages[state.stage];
+  state.answers.push({ stage: state.stage, choice: 'timeout', correct: false });
+  state.phase = 'respond';
+  stopTimer('TIME EXPIRED');
+  updateMemory();
+  tone(82.41, .7, .05, 'sawtooth');
+  ui.stageInstruction.textContent = 'The change settles before you can name it.';
+  ui.missionText.textContent = 'You missed the evidence, but you still control the response.';
+  renderActionChoices(stage);
+  announce(`Time expired. ${stage.actionPrompt}`);
+}
+
+function renderActionChoices(stage) {
+  ui.choicePanel.classList.add('action-choice');
+  ui.choicePrompt.textContent = stage.actionPrompt;
+  ui.choiceButtons.replaceChildren();
+  stage.actions.forEach((action) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    const label = document.createElement('strong');
+    label.textContent = action.label;
+    const detail = document.createElement('small');
+    detail.textContent = action.detail;
+    button.append(label, detail);
+    button.addEventListener('click', () => selectResponse(action));
+    ui.choiceButtons.append(button);
+  });
+  ui.choicePanel.hidden = false;
+  ui.choiceButtons.querySelector('button')?.focus();
+}
+
+function selectResponse(action) {
+  if (state.phase !== 'respond') return;
+  state.responses.push({ stage: state.stage, ...action });
+  state.phase = 'answered';
+  ui.choicePanel.hidden = true;
+  ui.choicePanel.classList.remove('action-choice');
+  ui.stageInstruction.textContent = `You chose: ${action.label.toLowerCase()}. The room remembers.`;
+  ui.missionText.textContent = 'Decision recorded. Continue when you are ready.';
+  tone(action.trait === 'instinct' ? 196 : action.trait === 'evidence' ? 261.63 : 130.81, .5, .035, 'triangle');
   ui.lookButton.hidden = false;
   ui.lookButton.innerHTML = state.stage === stages.length - 1
     ? 'MAKE THE FINAL CHOICE <span aria-hidden="true">→</span>'
@@ -223,6 +363,7 @@ function advance() {
     state.stage += 1;
     renderStage();
   } else {
+    stopTimer('COMPLETE');
     ui.stageLabel.textContent = 'FINAL / DECISION';
     showScreen(ui.finalChoice);
     document.querySelector('.decision-card')?.focus();
@@ -245,6 +386,20 @@ function updateMemory() {
 function chooseEnding(finalChoice) {
   state.final = finalChoice;
   const score = state.answers.filter((answer) => answer.correct).length;
+  const traitCounts = state.responses.reduce((counts, response) => {
+    counts[response.trait] = (counts[response.trait] || 0) + 1;
+    return counts;
+  }, { memory: 0, evidence: 0, instinct: 0 });
+  const highestTraitCount = Math.max(...Object.values(traitCounts));
+  const leadingTraits = Object.keys(traitCounts).filter((trait) => traitCounts[trait] === highestTraitCount);
+  const dominantTrait = leadingTraits.length === 1
+    ? leadingTraits[0]
+    : state.responses.at(-1)?.trait || finalChoice;
+  const actionEcho = {
+    memory: ' The room remembers how often you tried to contain it; every locked object now bears your fingerprints.',
+    evidence: ' The evidence you collected survives beside you, although each record shows a slightly different room.',
+    instinct: ' The room remembers that you acted before certainty arrived, and it has learned to do the same.'
+  }[dominantTrait];
   const endings = {
     memory: score >= 2
       ? ['ENDING 01 / THE WITNESS', 'The room remembers you back.', 'You restore the first room detail by detail. When the door finally opens, the corridor beyond contains three framed portraits of you—each with a different expression. Memory did not preserve reality. It taught reality how to imitate you.']
@@ -259,19 +414,21 @@ function chooseEnding(finalChoice) {
   const [code, title, text] = endings[finalChoice];
   ui.endingCode.textContent = code;
   ui.endingTitle.textContent = title;
-  ui.endingText.textContent = text;
+  ui.endingText.textContent = text + actionEcho;
   ui.finalScore.textContent = `${score} / 3`;
-  ui.finalTrust.textContent = finalChoice.toUpperCase();
+  const playStyleLabel = { memory: 'CONTROL', evidence: 'DOCUMENT', instinct: 'CONFRONT' }[dominantTrait];
+  ui.finalTrust.textContent = `${finalChoice.toUpperCase()} / ${playStyleLabel}`;
   ui.stageLabel.textContent = code.replace('ENDING ', 'END / ');
   showScreen(ui.ending);
   tone(110, 1.4, .045, 'triangle');
   window.setTimeout(() => tone(164.81, 1.6, .025), 200);
   ui.replayButton.focus();
-  announce(`${code}. ${title} ${text}`);
+  announce(`${code}. ${title} ${text}${actionEcho}`);
 }
 
 function resetGame() {
-  state = { stage: 0, phase: 'observe', answers: [], sound: state.sound, final: null };
+  stopTimer('READY');
+  state = { stage: 0, phase: 'observe', answers: [], responses: [], sound: state.sound, final: null };
   ui.room.classList.remove('mutated', 'is-shifting');
   ui.stageLabel.textContent = 'PROLOGUE / 00';
   showScreen(ui.start);
