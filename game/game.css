@@ -106,9 +106,9 @@ button { color: inherit; }
 .room[data-stage="2"].mutated .radio { background: #ece8dc; color: var(--pink); transform: translateX(-30%); }
 .room[data-stage="2"].mutated .room__wall { background: linear-gradient(90deg,transparent 49.7%,rgba(0,0,0,.06) 50%,transparent 50.3%), repeating-linear-gradient(90deg,#c3c1d9 0 110px,#b8b6d0 110px 112px); }
 
-.blindfold { position: absolute; z-index: 30; inset: 0; display: grid; place-content: center; text-align: center; background: #050506; overflow: hidden; }
-.blindfold::before, .blindfold::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.035) 4px); }
-.blindfold__noise { position: absolute; width: 50vw; height: 50vw; left: 25%; top: 25%; border-radius: 50%; background: var(--violet); filter: blur(180px); opacity: .12; animation: wander 2.8s infinite alternate; }
+.blindfold { position: absolute; z-index: 30; inset: 0; display: grid; place-content: center; text-align: center; background: #050506; overflow: hidden; cursor: pointer; }
+.blindfold::before, .blindfold::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.035) 4px); }
+.blindfold__noise { position: absolute; width: 50vw; height: 50vw; left: 25%; top: 25%; pointer-events: none; border-radius: 50%; background: var(--violet); filter: blur(180px); opacity: .12; animation: wander 2.8s infinite alternate; }
 .blindfold p { position: relative; margin: 0; font: clamp(1rem,2.5vw,2rem) var(--mono); letter-spacing: .14em; }
 .blindfold span { position: relative; margin-top: 1rem; color: #777780; font-size: .9rem; }
 .blindfold__return { position: relative; margin: 2rem auto 0; min-width: 220px; }

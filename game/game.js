@@ -292,6 +292,9 @@ ui.lookButton.addEventListener('click', () => {
 });
 
 ui.blindfoldReturn.addEventListener('click', lookAway);
+ui.blindfold.addEventListener('click', () => {
+  if (state.phase === 'away') lookAway();
+});
 
 ui.soundToggle.addEventListener('click', () => {
   state.sound = !state.sound;
