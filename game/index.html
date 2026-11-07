@@ -15,8 +15,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="game.css?v=20261106-5" />
-    <script src="game.js?v=20261106-5" defer></script>
+    <link rel="stylesheet" href="game.css?v=20261106-6" />
+    <script src="game.js?v=20261106-6" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#game">Skip to game</a>
@@ -61,6 +61,36 @@
           <div class="start-portal__echo start-portal__echo--one"></div>
           <div class="start-portal__echo start-portal__echo--two"></div>
           <div class="start-portal__door"><span></span></div>
+        </div>
+      </section>
+
+      <section id="storyScreen" class="screen screen--story" hidden aria-labelledby="storyTitle">
+        <div class="story-copy">
+          <p id="storyKicker" class="kicker">CASE FILE 01 / THE CALL</p>
+          <h2 id="storyTitle">The call came from your number.</h2>
+          <p id="storyText" class="story-text"></p>
+          <div class="story-evidence">
+            <span>EVIDENCE</span>
+            <strong id="storyEvidence">04:17 A.M. / 23 SECONDS</strong>
+          </div>
+          <div class="story-controls">
+            <div id="storyProgress" class="story-progress" aria-label="Backstory progress">
+              <i></i><i></i><i></i><i></i>
+            </div>
+            <div>
+              <button id="storySkip" class="story-skip" type="button">SKIP CASE FILE</button>
+              <button id="storyNext" class="primary-button" type="button">CONTINUE →</button>
+            </div>
+          </div>
+        </div>
+        <div id="storyVisual" class="story-visual" data-beat="0" aria-hidden="true">
+          <div class="story-clock">04:17</div>
+          <div class="story-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="story-door">
+            <span>12</span>
+            <i></i>
+          </div>
+          <p>INCOMING CALL<br />SOURCE: YOUR PHONE</p>
         </div>
       </section>
 

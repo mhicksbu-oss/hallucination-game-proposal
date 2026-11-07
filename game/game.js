@@ -1,3 +1,34 @@
+const storyBeats = [
+  {
+    kicker: 'CASE FILE 01 / THE CALL',
+    title: 'The call came from your number.',
+    text: 'At 4:17 A.M., a dispatcher answered a twenty-three-second call. Your voice whispered: “I’m in Apartment 12. Don’t let me out.” You were asleep across town—or you remember being asleep.',
+    evidence: '04:17 A.M. / 23 SECONDS',
+    visual: 'INCOMING CALL / SOURCE: YOUR PHONE'
+  },
+  {
+    kicker: 'CASE FILE 02 / THE ADDRESS',
+    title: 'Apartment 12 does not exist.',
+    text: 'The building plans end at eleven. Eight years ago, a twelfth room appeared for one night. Three investigators entered. Only two returned, and each insisted the other one was the copy.',
+    evidence: 'FLOOR PLAN / UNIT 12 REMOVED',
+    visual: 'ARCHIVE ERROR / ROOM NOT FOUND'
+  },
+  {
+    kicker: 'CASE FILE 03 / THE RECORDING',
+    title: '“The room copies what you forget.”',
+    text: 'A cassette is waiting outside the door. The voice on it is yours: “It changes whenever you stop looking. Every missed detail gives it something new to wear.” The recording ends with three knocks.',
+    evidence: 'CASSETTE 12-B / VOICE MATCH 99.8%',
+    visual: 'PLAYBACK ACTIVE / SPEAKER: YOU'
+  },
+  {
+    kicker: 'CASE FILE 04 / THE TEST',
+    title: 'Prove which one of you arrived.',
+    text: 'The door now bears the number 12. It will test three memories before it opens again. Recognize at least two changes. Miss twice, and the room will send something else home in your place.',
+    evidence: 'EXIT CONDITION / 2 OF 3 MEMORIES',
+    visual: 'IDENTITY TEST READY / DOOR UNLOCKED'
+  }
+];
+
 const stages = [
   {
     kicker: 'STAGE 01 / ARRIVAL',
@@ -63,11 +94,20 @@ const stages = [
 
 const ui = {
   start: document.querySelector('#startScreen'),
+  story: document.querySelector('#storyScreen'),
   play: document.querySelector('#playScreen'),
   finalChoice: document.querySelector('#finalChoiceScreen'),
   ending: document.querySelector('#endingScreen'),
   failure: document.querySelector('#failureScreen'),
   startButton: document.querySelector('#startButton'),
+  storyKicker: document.querySelector('#storyKicker'),
+  storyTitle: document.querySelector('#storyTitle'),
+  storyText: document.querySelector('#storyText'),
+  storyEvidence: document.querySelector('#storyEvidence'),
+  storyVisual: document.querySelector('#storyVisual'),
+  storyProgress: [...document.querySelectorAll('#storyProgress i')],
+  storyNext: document.querySelector('#storyNext'),
+  storySkip: document.querySelector('#storySkip'),
   lookButton: document.querySelector('#lookButton'),
   blindfoldReturn: document.querySelector('#blindfoldReturn'),
   replayButton: document.querySelector('#replayButton'),
@@ -102,7 +142,7 @@ const ui = {
   liveRegion: document.querySelector('#liveRegion')
 };
 
-let state = { stage: 0, phase: 'observe', answers: [], responses: [], sound: true, final: null };
+let state = { storyBeat: 0, stage: 0, phase: 'observe', answers: [], responses: [], sound: true, final: null };
 let audioContext;
 let ambientNodes = [];
 let musicInterval;
@@ -111,8 +151,43 @@ let timerDeadline = 0;
 let revealTimeouts = [];
 
 function showScreen(screen) {
-  [ui.start, ui.play, ui.finalChoice, ui.ending, ui.failure].forEach((item) => { item.hidden = item !== screen; });
+  [ui.start, ui.story, ui.play, ui.finalChoice, ui.ending, ui.failure].forEach((item) => { item.hidden = item !== screen; });
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderStoryBeat() {
+  const beat = storyBeats[state.storyBeat];
+  ui.stageLabel.textContent = `CASE FILE / 0${state.storyBeat + 1}`;
+  ui.storyKicker.textContent = beat.kicker;
+  ui.storyTitle.textContent = beat.title;
+  ui.storyText.textContent = beat.text;
+  ui.storyEvidence.textContent = beat.evidence;
+  ui.storyVisual.dataset.beat = String(state.storyBeat);
+  ui.storyVisual.querySelector('p').innerHTML = beat.visual.replace(' / ', '<br />');
+  ui.storyProgress.forEach((pip, index) => {
+    pip.className = index < state.storyBeat ? 'complete' : index === state.storyBeat ? 'active' : '';
+  });
+  ui.storyNext.innerHTML = state.storyBeat === storyBeats.length - 1
+    ? 'OPEN APARTMENT 12 <span aria-hidden="true">→</span>'
+    : 'CONTINUE <span aria-hidden="true">→</span>';
+  tone(110 + state.storyBeat * 18, .45, .025, 'triangle');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  announce(`${beat.kicker}. ${beat.title} ${beat.text}`);
+}
+
+function enterRoomFromStory() {
+  showScreen(ui.play);
+  renderStage();
+  ui.lookButton.focus();
+}
+
+function advanceStory() {
+  if (state.storyBeat < storyBeats.length - 1) {
+    state.storyBeat += 1;
+    renderStoryBeat();
+    return;
+  }
+  enterRoomFromStory();
 }
 
 function announce(message) {
@@ -494,7 +569,7 @@ function chooseEnding(finalChoice) {
 function resetGame() {
   clearReveal();
   stopTimer('READY');
-  state = { stage: 0, phase: 'observe', answers: [], responses: [], sound: state.sound, final: null };
+  state = { storyBeat: 0, stage: 0, phase: 'observe', answers: [], responses: [], sound: state.sound, final: null };
   ui.room.classList.remove('mutated', 'is-shifting');
   ui.stageLabel.textContent = 'PROLOGUE / 00';
   showScreen(ui.start);
@@ -503,11 +578,15 @@ function resetGame() {
 }
 
 ui.startButton.addEventListener('click', () => {
-  showScreen(ui.play);
-  renderStage();
+  showScreen(ui.story);
   startAmbient();
-  ui.lookButton.focus();
+  state.storyBeat = 0;
+  renderStoryBeat();
+  ui.storyNext.focus();
 });
+
+ui.storyNext.addEventListener('click', advanceStory);
+ui.storySkip.addEventListener('click', enterRoomFromStory);
 
 ui.lookButton.addEventListener('click', () => {
   if (state.phase === 'answered') advance();
