@@ -15,8 +15,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="game.css?v=20261106-4" />
-    <script src="game.js?v=20261106-4" defer></script>
+    <link rel="stylesheet" href="game.css?v=20261106-5" />
+    <script src="game.js?v=20261106-5" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#game">Skip to game</a>
@@ -50,6 +50,7 @@
             ENTER THE ROOM <span aria-hidden="true">→</span>
           </button>
           <p class="controls-note">SOUND BEGINS ON ENTRY · KEYBOARD: SPACE / ENTER · 5–7 MINUTES</p>
+          <p class="failure-rule">MISS TWO CHANGES AND THE ROOM CHOOSES FOR YOU.</p>
           <ol class="how-to" aria-label="How to play">
             <li><span>01</span><strong>MEMORIZE</strong><small>Study the room before time runs out.</small></li>
             <li><span>02</span><strong>RETURN</strong><small>Look again and identify what changed.</small></li>
@@ -185,7 +186,29 @@
           <a class="secondary-button" href="../#concept">READ THE PROPOSAL ↗</a>
         </div>
       </section>
+
+      <section id="failureScreen" class="screen screen--failure" hidden aria-labelledby="failureTitle">
+        <div class="failure-signal" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <p class="kicker">RUN FAILED / MEMORY COLLAPSE</p>
+        <h2 id="failureTitle">The room chose for you.</h2>
+        <p id="failureText" class="failure-text">
+          The door opens before you touch it. Someone on the other side has your face—and your
+          memories are already in their hands.
+        </p>
+        <div class="failure-record">
+          <span>CHANGES RECOGNIZED <strong id="failureScore">0 / 3</strong></span>
+          <span>STATUS <strong>REPLACED</strong></span>
+        </div>
+        <div class="ending-actions">
+          <button id="retryButton" class="primary-button" type="button">TRY AGAIN ↻</button>
+          <a class="secondary-button" href="../#concept">RETURN TO THE PROPOSAL ↗</a>
+        </div>
+      </section>
     </main>
+
+    <div id="suspenseOverlay" class="suspense-overlay" hidden aria-live="assertive">
+      <p id="suspenseLine"></p>
+    </div>
 
     <footer class="game-footer">
       <span>PROTOTYPE 01 · 2026</span>

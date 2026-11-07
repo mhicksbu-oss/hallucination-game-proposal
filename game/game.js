@@ -66,10 +66,12 @@ const ui = {
   play: document.querySelector('#playScreen'),
   finalChoice: document.querySelector('#finalChoiceScreen'),
   ending: document.querySelector('#endingScreen'),
+  failure: document.querySelector('#failureScreen'),
   startButton: document.querySelector('#startButton'),
   lookButton: document.querySelector('#lookButton'),
   blindfoldReturn: document.querySelector('#blindfoldReturn'),
   replayButton: document.querySelector('#replayButton'),
+  retryButton: document.querySelector('#retryButton'),
   soundToggle: document.querySelector('#soundToggle'),
   stageLabel: document.querySelector('#stageLabel'),
   stageKicker: document.querySelector('#stageKicker'),
@@ -94,6 +96,9 @@ const ui = {
   endingText: document.querySelector('#endingText'),
   finalScore: document.querySelector('#finalScore'),
   finalTrust: document.querySelector('#finalTrust'),
+  failureScore: document.querySelector('#failureScore'),
+  suspenseOverlay: document.querySelector('#suspenseOverlay'),
+  suspenseLine: document.querySelector('#suspenseLine'),
   liveRegion: document.querySelector('#liveRegion')
 };
 
@@ -103,15 +108,49 @@ let ambientNodes = [];
 let musicInterval;
 let timerInterval;
 let timerDeadline = 0;
+let revealTimeouts = [];
 
 function showScreen(screen) {
-  [ui.start, ui.play, ui.finalChoice, ui.ending].forEach((item) => { item.hidden = item !== screen; });
+  [ui.start, ui.play, ui.finalChoice, ui.ending, ui.failure].forEach((item) => { item.hidden = item !== screen; });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function announce(message) {
   ui.liveRegion.textContent = '';
   window.setTimeout(() => { ui.liveRegion.textContent = message; }, 30);
+}
+
+function clearReveal() {
+  revealTimeouts.forEach((timeout) => window.clearTimeout(timeout));
+  revealTimeouts = [];
+  ui.suspenseOverlay.hidden = true;
+  ui.suspenseLine.classList.remove('visible');
+}
+
+function runSuspenseReveal(lines, callback) {
+  clearReveal();
+  stopTimer('SIGNAL LOST');
+  ui.suspenseOverlay.hidden = false;
+  let index = 0;
+
+  const showNext = () => {
+    ui.suspenseLine.classList.remove('visible');
+    const swapTimeout = window.setTimeout(() => {
+      ui.suspenseLine.textContent = lines[index];
+      ui.suspenseLine.classList.add('visible');
+      tone(65 + index * 18, .55, .04, index === lines.length - 1 ? 'sawtooth' : 'triangle');
+      index += 1;
+      if (index < lines.length) revealTimeouts.push(window.setTimeout(showNext, 850));
+      else revealTimeouts.push(window.setTimeout(() => {
+        ui.suspenseOverlay.hidden = true;
+        ui.suspenseLine.classList.remove('visible');
+        callback();
+      }, 950));
+    }, 180);
+    revealTimeouts.push(swapTimeout);
+  };
+
+  showNext();
 }
 
 function stopTimer(label = 'PAUSED') {
@@ -350,8 +389,11 @@ function selectResponse(action) {
   ui.missionText.textContent = 'Decision recorded. Continue when you are ready.';
   tone(action.trait === 'instinct' ? 196 : action.trait === 'evidence' ? 261.63 : 130.81, .5, .035, 'triangle');
   ui.lookButton.hidden = false;
+  const currentScore = state.answers.filter((answer) => answer.correct).length;
   ui.lookButton.innerHTML = state.stage === stages.length - 1
-    ? 'MAKE THE FINAL CHOICE <span aria-hidden="true">→</span>'
+    ? currentScore >= 2
+      ? 'MAKE THE FINAL CHOICE <span aria-hidden="true">→</span>'
+      : 'FACE THE RESULT <span aria-hidden="true">→</span>'
     : 'ENTER THE NEXT VERSION <span aria-hidden="true">→</span>';
   ui.lookButton.focus();
   announce(ui.stageInstruction.textContent);
@@ -364,11 +406,29 @@ function advance() {
     renderStage();
   } else {
     stopTimer('COMPLETE');
+    const score = state.answers.filter((answer) => answer.correct).length;
+    if (score < 2) {
+      failGame(score);
+      return;
+    }
     ui.stageLabel.textContent = 'FINAL / DECISION';
     showScreen(ui.finalChoice);
     document.querySelector('.decision-card')?.focus();
     announce('Final decision. Which reality should remain?');
   }
+}
+
+function failGame(score) {
+  ui.failureScore.textContent = `${score} / 3`;
+  ui.stageLabel.textContent = 'FAILED / MEMORY LOST';
+  runSuspenseReveal(
+    ['THE CLOCK STOPS.', 'THE DOOR OPENS.', 'YOU DO NOT REMEMBER LEAVING.'],
+    () => {
+      showScreen(ui.failure);
+      ui.retryButton.focus();
+      announce('Run failed. The room chose for you. Try again.');
+    }
+  );
 }
 
 function updateMemory() {
@@ -396,20 +456,20 @@ function chooseEnding(finalChoice) {
     ? leadingTraits[0]
     : state.responses.at(-1)?.trait || finalChoice;
   const actionEcho = {
-    memory: ' The room remembers how often you tried to contain it; every locked object now bears your fingerprints.',
-    evidence: ' The evidence you collected survives beside you, although each record shows a slightly different room.',
-    instinct: ' The room remembers that you acted before certainty arrived, and it has learned to do the same.'
+    memory: ' Behind you, a key turns in a lock that was never there.',
+    evidence: ' Your newest photograph shows the door already open.',
+    instinct: ' The knocking stops the moment you think of turning around.'
   }[dominantTrait];
   const endings = {
     memory: score >= 2
-      ? ['ENDING 01 / THE WITNESS', 'The room remembers you back.', 'You restore the first room detail by detail. When the door finally opens, the corridor beyond contains three framed portraits of you—each with a different expression. Memory did not preserve reality. It taught reality how to imitate you.']
-      : ['ENDING 02 / THE RESTORATION', 'You rebuild a room that never existed.', 'You insist on the version you remember. The furniture obeys, but the proportions feel borrowed from a dream. The door opens inward onto the same room. This time, a note on the table says: WELCOME BACK.'],
+      ? ['ENDING 01 / THE WITNESS', 'The room remembers you back.', 'Every object returns to its first position. The lock clicks. Beyond the door, someone is arranging a second room—and they look exactly like you.']
+      : ['ENDING 02 / THE RESTORATION', 'You rebuild a room that never existed.', 'The last object slides into place. A note appears beneath your hand: THANK YOU FOR REMEMBERING ME. The handwriting is yours.'],
     evidence: score >= 2
-      ? ['ENDING 03 / THE ARCHIVIST', 'Everything visible becomes true.', 'You keep the final version and record every contradiction. The room grows perfectly still. On the radio, your own voice begins reading the list one item ahead of you. Evidence survives—but it is no longer yours alone.']
-      : ['ENDING 04 / THE ACCOMPLICE', 'The room rewards your attention.', 'You accept what can be seen now. The older versions dissolve without protest. As you leave, the door number changes once more behind your back. You do not turn around.'],
+      ? ['ENDING 03 / THE ARCHIVIST', 'The recording contains a fourth room.', 'You press play. In the footage, you are already standing inside it, facing the camera. Behind you, the handle begins to turn.']
+      : ['ENDING 04 / THE ACCOMPLICE', 'The room rewards your attention.', 'Nothing moves. Nothing blinks. Then the radio whispers tomorrow’s date—and begins counting backward from ten.'],
     instinct: score >= 2
-      ? ['ENDING 05 / THE INTERRUPTION', 'You refuse the room its answer.', 'You turn off the lamp, cover the portrait, silence the radio, and walk through the wall. For one second there is no room and no observer—only the sensation of waking before the dream decides what it meant.']
-      : ['ENDING 06 / THE AUTHOR', 'You choose the contradiction.', 'You refuse to separate memory from evidence. The room loosens around your decision, becoming unfinished and full of possible doors. One of them bears your handwriting: DO NOT LOOK TWICE.']
+      ? ['ENDING 05 / THE INTERRUPTION', 'You refuse the room its answer.', 'You walk through the wall before it can change again. The screen goes dark. Three slow knocks come from somewhere behind you.']
+      : ['ENDING 06 / THE AUTHOR', 'You choose the contradiction.', 'The walls loosen into unfinished lines. A new door draws itself in the air. On it, in wet ink: DO NOT LET ME OUT.']
   };
   const [code, title, text] = endings[finalChoice];
   ui.endingCode.textContent = code;
@@ -419,14 +479,20 @@ function chooseEnding(finalChoice) {
   const playStyleLabel = { memory: 'CONTROL', evidence: 'DOCUMENT', instinct: 'CONFRONT' }[dominantTrait];
   ui.finalTrust.textContent = `${finalChoice.toUpperCase()} / ${playStyleLabel}`;
   ui.stageLabel.textContent = code.replace('ENDING ', 'END / ');
-  showScreen(ui.ending);
-  tone(110, 1.4, .045, 'triangle');
-  window.setTimeout(() => tone(164.81, 1.6, .025), 200);
-  ui.replayButton.focus();
-  announce(`${code}. ${title} ${text}${actionEcho}`);
+  runSuspenseReveal(
+    ['THE ROOM GOES QUIET.', 'SOMETHING MOVES BEHIND THE DOOR.', 'YOUR CHOICE HAS BEEN RECORDED.'],
+    () => {
+      showScreen(ui.ending);
+      tone(110, 1.4, .045, 'triangle');
+      window.setTimeout(() => tone(164.81, 1.6, .025), 200);
+      ui.replayButton.focus();
+      announce(`${code}. ${title} ${text}${actionEcho}`);
+    }
+  );
 }
 
 function resetGame() {
+  clearReveal();
   stopTimer('READY');
   state = { stage: 0, phase: 'observe', answers: [], responses: [], sound: state.sound, final: null };
   ui.room.classList.remove('mutated', 'is-shifting');
@@ -466,6 +532,7 @@ document.querySelectorAll('.decision-card').forEach((button) => {
 });
 
 ui.replayButton.addEventListener('click', resetGame);
+ui.retryButton.addEventListener('click', resetGame);
 
 document.addEventListener('keydown', (event) => {
   if (event.code === 'Space' && !ui.play.hidden && !ui.lookButton.hidden && document.activeElement.tagName !== 'BUTTON') {
