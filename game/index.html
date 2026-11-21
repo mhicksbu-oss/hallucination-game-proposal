@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="game.css?v=20261120" />
+    <link rel="stylesheet" href="game.css?v=20261120-2" />
     <script src="game.js?v=20261120" defer></script>
   </head>
   <body>
@@ -49,12 +49,16 @@
           <button id="startButton" class="primary-button" type="button">
             ENTER THE ROOM <span aria-hidden="true">→</span>
           </button>
-          <p class="controls-note">SOUND BEGINS ON ENTRY · KEYBOARD: SPACE / ENTER · 5–7 MINUTES</p>
-          <p class="failure-rule">MISS TWO CHANGES AND THE ROOM CHOOSES FOR YOU.</p>
+          <p class="controls-note">SOUND BEGINS ON ENTRY · KEYBOARD: SPACE / ENTER · ABOUT 5 MINUTES</p>
+          <div class="stakes-card" aria-label="How to win and lose">
+            <p><strong>HOW TO WIN</strong> Identify the changed detail in at least 2 of the 3 rooms.</p>
+            <p><strong>IF YOU MISS TWICE</strong> You lose. The room creates a copy of you, replaces you, and sends the copy home with your memories.</p>
+            <p><strong>PLAY AGAIN</strong> Try different responses and a different final choice to uncover another ending.</p>
+          </div>
           <ol class="how-to" aria-label="How to play">
             <li><span>01</span><strong>MEMORIZE</strong><small>Study the room before time runs out.</small></li>
             <li><span>02</span><strong>RETURN</strong><small>Look again and identify what changed.</small></li>
-            <li><span>03</span><strong>DECIDE</strong><small>Choose how to respond. Your actions shape the ending.</small></li>
+            <li><span>03</span><strong>DECIDE</strong><small>Choose your response, reach an ending, then replay for a different one.</small></li>
           </ol>
           <div class="play-options" aria-label="Game options and change rules">
             <p><strong>WHAT CAN CHANGE?</strong> Color, position, written messages, or an entire object. The final room changes two details.</p>
