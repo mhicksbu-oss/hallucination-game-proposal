@@ -41,14 +41,18 @@ const stages = [
       { id: 'clock', label: 'THE CLOCK' },
       { id: 'plant', label: 'THE PLANT' }
     ],
-    correct: 'portrait',
+    correct: ['portrait'],
+    observeSeconds: 24,
+    decideSeconds: 18,
     blindfold: 'A face rearranges itself in the dark.',
     actionPrompt: 'The portrait is smiling now. How do you respond?',
     actions: [
       { id: 'confront', label: 'SPEAK TO IT', detail: 'Ask the portrait what it wants.', trait: 'instinct' },
       { id: 'document', label: 'TAKE A PHOTO', detail: 'Create evidence before it changes again.', trait: 'evidence' },
       { id: 'restore', label: 'TURN IT AROUND', detail: 'Reject the new version of the room.', trait: 'memory' }
-    ]
+    ],
+    fragmentTitle: 'It practiced your expression.',
+    fragment: 'The photograph in the case file updates itself. A second figure now stands behind you, wearing the smile you just found.'
   },
   {
     kicker: 'STAGE 02 / MISMATCH',
@@ -61,34 +65,42 @@ const stages = [
       { id: 'door', label: 'THE DOOR' },
       { id: 'note', label: 'THE NOTE' }
     ],
-    correct: 'door',
+    correct: ['door'],
+    observeSeconds: 20,
+    decideSeconds: 15,
     blindfold: 'A small mechanism crosses from right to left.',
     actionPrompt: 'The handle has crossed to the other side. What now?',
     actions: [
       { id: 'open', label: 'OPEN THE DOOR', detail: 'Risk whatever is waiting beyond it.', trait: 'instinct' },
       { id: 'mark', label: 'MARK ITS POSITION', detail: 'Draw a line around the handle.', trait: 'evidence' },
       { id: 'barricade', label: 'BARRICADE IT', detail: 'Force the room to keep this version.', trait: 'memory' }
-    ]
+    ],
+    fragmentTitle: 'It knows which way you would run.',
+    fragment: 'A new line appears in the transcript: SUBJECT CHECKED THE EXIT. COPY MOVED FIRST. The timestamp is one minute from now.'
   },
   {
     kicker: 'STAGE 03 / CONSEQUENCE',
     title: 'It remembers the test.',
     observe: 'There may be more than one change. Choose the detail that matters.',
     returnText: 'The signal has moved closer. The walls deny their color.',
-    prompt: 'Which change is calling for your attention?',
+    prompt: 'Two details changed. Select both, then confirm.',
     choices: [
       { id: 'radio', label: 'THE RADIO' },
       { id: 'wall', label: 'THE WALLS' },
       { id: 'clock', label: 'THE CLOCK' }
     ],
-    correct: 'radio',
+    correct: ['radio', 'wall'],
+    observeSeconds: 16,
+    decideSeconds: 12,
     blindfold: 'A voice searches the dial for your name.',
     actionPrompt: 'The radio is broadcasting your own voice. Choose quickly.',
     actions: [
       { id: 'answer', label: 'ANSWER THE VOICE', detail: 'Tell it which version is real.', trait: 'instinct' },
       { id: 'record', label: 'RECORD THE SIGNAL', detail: 'Preserve the impossible transmission.', trait: 'evidence' },
       { id: 'destroy', label: 'SMASH THE RADIO', detail: 'Silence the room before it speaks again.', trait: 'memory' }
-    ]
+    ],
+    fragmentTitle: 'The copy has finished rehearsing.',
+    fragment: 'Your voice comes through the radio: “I remember the room perfectly.” In the doorway, a silhouette repeats your last movement half a second early.'
   }
 ];
 
@@ -113,6 +125,7 @@ const ui = {
   replayButton: document.querySelector('#replayButton'),
   retryButton: document.querySelector('#retryButton'),
   soundToggle: document.querySelector('#soundToggle'),
+  untimedToggle: document.querySelector('#untimedToggle'),
   stageLabel: document.querySelector('#stageLabel'),
   stageKicker: document.querySelector('#stageKicker'),
   stageTitle: document.querySelector('#stageTitle'),
@@ -131,6 +144,10 @@ const ui = {
   timerBar: document.querySelector('#timerBar'),
   pips: [...document.querySelectorAll('#memoryPips i')],
   memoryScore: document.querySelector('#memoryScore'),
+  fragmentPanel: document.querySelector('#fragmentPanel'),
+  fragmentCode: document.querySelector('#fragmentCode'),
+  fragmentTitle: document.querySelector('#fragmentTitle'),
+  fragmentText: document.querySelector('#fragmentText'),
   endingCode: document.querySelector('#endingCode'),
   endingTitle: document.querySelector('#endingTitle'),
   endingText: document.querySelector('#endingText'),
@@ -142,7 +159,7 @@ const ui = {
   liveRegion: document.querySelector('#liveRegion')
 };
 
-let state = { storyBeat: 0, stage: 0, phase: 'observe', answers: [], responses: [], sound: true, final: null };
+let state = { storyBeat: 0, stage: 0, phase: 'observe', answers: [], responses: [], sound: true, untimed: false, final: null };
 let audioContext;
 let ambientNodes = [];
 let musicInterval;
@@ -240,6 +257,13 @@ function stopTimer(label = 'PAUSED') {
 
 function startTimer(seconds, label, onExpire) {
   window.clearInterval(timerInterval);
+  if (state.untimed) {
+    ui.timerLabel.textContent = 'FOCUS MODE';
+    ui.timerValue.textContent = '∞';
+    ui.timerBar.style.transform = 'scaleX(1)';
+    ui.countdown.classList.remove('urgent', 'paused');
+    return;
+  }
   const duration = seconds * 1000;
   timerDeadline = Date.now() + duration;
   ui.timerLabel.textContent = label;
@@ -330,7 +354,9 @@ function renderStage() {
   ui.stageKicker.textContent = stage.kicker;
   ui.stageTitle.textContent = stage.title;
   ui.stageInstruction.textContent = stage.observe;
-  ui.missionText.textContent = 'Memorize the room. You have 20 seconds, or you can look away early.';
+  ui.missionText.textContent = state.untimed
+    ? 'Study color, position, text, and objects. Look away whenever you are ready.'
+    : `Study color, position, text, and objects. You have ${stage.observeSeconds} seconds.`;
   ui.missionPips.forEach((pip, index) => {
     pip.className = index < state.stage ? 'complete' : index === state.stage ? 'active' : '';
   });
@@ -338,11 +364,12 @@ function renderStage() {
   ui.room.dataset.phase = 'observe';
   ui.room.classList.remove('mutated', 'is-shifting');
   ui.choicePanel.hidden = true;
+  ui.fragmentPanel.hidden = true;
   ui.blindfold.hidden = true;
   ui.lookButton.hidden = false;
   ui.lookButton.innerHTML = 'LOOK AWAY <span aria-hidden="true">◉</span>';
   updateMemory();
-  startTimer(20, 'MEMORIZE', () => {
+  startTimer(stage.observeSeconds, 'MEMORIZE', () => {
     if (state.phase === 'observe') {
       announce('Time expired. The room changes while you look away.');
       lookAway();
@@ -375,9 +402,11 @@ function lookAway() {
     ui.room.dataset.phase = 'changed';
     ui.lookButton.hidden = true;
     ui.stageInstruction.textContent = stage.returnText;
-    ui.missionText.textContent = 'Identify the changed detail before the evidence becomes unreliable.';
+    ui.missionText.textContent = stage.correct.length > 1
+      ? 'Two contradictions are visible. Select both before the evidence settles.'
+      : 'Identify the changed detail before the evidence becomes unreliable.';
     renderChoices(stage);
-    startTimer(15, 'DECIDE', () => timeoutChoice());
+    startTimer(stage.decideSeconds, 'DECIDE', () => timeoutChoice());
     tone(220 + state.stage * 35, .22, .05, 'square');
     window.setTimeout(() => tone(329.6 + state.stage * 28, .45, .03), 100);
     announce(`You look again. ${stage.returnText} ${stage.prompt}`);
@@ -388,24 +417,48 @@ function renderChoices(stage) {
   ui.choicePanel.classList.remove('action-choice');
   ui.choicePrompt.textContent = stage.prompt;
   ui.choiceButtons.replaceChildren();
+  const selected = new Set();
+  let confirmButton;
   stage.choices.forEach((choice) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.dataset.choice = choice.id;
+    button.setAttribute('aria-pressed', 'false');
     const label = document.createElement('strong');
     label.textContent = choice.label;
     button.append(label);
-    button.addEventListener('click', () => selectChoice(choice.id));
+    button.addEventListener('click', () => {
+      if (stage.correct.length === 1) {
+        selectChoice([choice.id]);
+        return;
+      }
+      if (selected.has(choice.id)) selected.delete(choice.id);
+      else if (selected.size < stage.correct.length) selected.add(choice.id);
+      button.classList.toggle('selected', selected.has(choice.id));
+      button.setAttribute('aria-pressed', String(selected.has(choice.id)));
+      confirmButton.disabled = selected.size !== stage.correct.length;
+      announce(`${selected.size} of ${stage.correct.length} details selected.`);
+    });
     ui.choiceButtons.append(button);
   });
+  if (stage.correct.length > 1) {
+    confirmButton = document.createElement('button');
+    confirmButton.type = 'button';
+    confirmButton.className = 'confirm-choice';
+    confirmButton.disabled = true;
+    confirmButton.innerHTML = '<strong>CONFIRM TWO CHANGES →</strong>';
+    confirmButton.addEventListener('click', () => selectChoice([...selected]));
+    ui.choiceButtons.append(confirmButton);
+  }
   ui.choicePanel.hidden = false;
+  window.setTimeout(() => ui.choicePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120);
   ui.choiceButtons.querySelector('button')?.focus();
 }
 
 function selectChoice(choice) {
   if (state.phase !== 'choose') return;
   const stage = stages[state.stage];
-  const correct = choice === stage.correct;
+  const correct = choice.length === stage.correct.length && stage.correct.every((id) => choice.includes(id));
   state.answers.push({ stage: state.stage, choice, correct });
   state.phase = 'respond';
   stopTimer('CHOICE LOCKED');
@@ -456,14 +509,19 @@ function renderActionChoices(stage) {
 
 function selectResponse(action) {
   if (state.phase !== 'respond') return;
+  const stage = stages[state.stage];
   state.responses.push({ stage: state.stage, ...action });
   state.phase = 'answered';
   ui.choicePanel.hidden = true;
   ui.choicePanel.classList.remove('action-choice');
   ui.stageInstruction.textContent = `You chose: ${action.label.toLowerCase()}. The room remembers.`;
-  ui.missionText.textContent = 'Decision recorded. Continue when you are ready.';
+  ui.missionText.textContent = 'Decision recorded. A fragment of the case file has changed.';
   tone(action.trait === 'instinct' ? 196 : action.trait === 'evidence' ? 261.63 : 130.81, .5, .035, 'triangle');
   ui.lookButton.hidden = false;
+  ui.fragmentCode.textContent = `RECOVERED / 0${state.stage + 1}`;
+  ui.fragmentTitle.textContent = stage.fragmentTitle;
+  ui.fragmentText.textContent = stage.fragment;
+  ui.fragmentPanel.hidden = false;
   const currentScore = state.answers.filter((answer) => answer.correct).length;
   ui.lookButton.innerHTML = state.stage === stages.length - 1
     ? currentScore >= 2
@@ -471,6 +529,7 @@ function selectResponse(action) {
       : 'FACE THE RESULT <span aria-hidden="true">→</span>'
     : 'ENTER THE NEXT VERSION <span aria-hidden="true">→</span>';
   ui.lookButton.focus();
+  window.setTimeout(() => ui.fragmentPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120);
   announce(ui.stageInstruction.textContent);
 }
 
@@ -569,7 +628,7 @@ function chooseEnding(finalChoice) {
 function resetGame() {
   clearReveal();
   stopTimer('READY');
-  state = { storyBeat: 0, stage: 0, phase: 'observe', answers: [], responses: [], sound: state.sound, final: null };
+  state = { storyBeat: 0, stage: 0, phase: 'observe', answers: [], responses: [], sound: state.sound, untimed: ui.untimedToggle.checked, final: null };
   ui.room.classList.remove('mutated', 'is-shifting');
   ui.stageLabel.textContent = 'PROLOGUE / 00';
   showScreen(ui.start);
@@ -578,11 +637,17 @@ function resetGame() {
 }
 
 ui.startButton.addEventListener('click', () => {
+  state.untimed = ui.untimedToggle.checked;
   showScreen(ui.story);
   startAmbient();
   state.storyBeat = 0;
   renderStoryBeat();
   ui.storyNext.focus();
+});
+
+ui.untimedToggle.addEventListener('change', () => {
+  state.untimed = ui.untimedToggle.checked;
+  announce(`Focus mode ${state.untimed ? 'enabled. Timers are removed.' : 'disabled. Timers will gradually shorten.'}`);
 });
 
 ui.storyNext.addEventListener('click', advanceStory);

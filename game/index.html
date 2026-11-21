@@ -15,8 +15,8 @@
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="game.css?v=20261106-6" />
-    <script src="game.js?v=20261106-6" defer></script>
+    <link rel="stylesheet" href="game.css?v=20261120" />
+    <script src="game.js?v=20261120" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#game">Skip to game</a>
@@ -56,6 +56,10 @@
             <li><span>02</span><strong>RETURN</strong><small>Look again and identify what changed.</small></li>
             <li><span>03</span><strong>DECIDE</strong><small>Choose how to respond. Your actions shape the ending.</small></li>
           </ol>
+          <div class="play-options" aria-label="Game options and change rules">
+            <p><strong>WHAT CAN CHANGE?</strong> Color, position, written messages, or an entire object. The final room changes two details.</p>
+            <label><input id="untimedToggle" type="checkbox" /> <span><strong>FOCUS MODE</strong> Remove timers while keeping every stage and ending.</span></label>
+          </div>
         </div>
         <div class="start-portal" aria-hidden="true">
           <div class="start-portal__echo start-portal__echo--one"></div>
@@ -178,6 +182,12 @@
           <p id="choicePrompt">What changed?</p>
           <div id="choiceButtons" class="choice-buttons"></div>
         </div>
+
+        <aside id="fragmentPanel" class="fragment-panel" hidden aria-live="polite">
+          <span id="fragmentCode">RECOVERED / 01</span>
+          <h3 id="fragmentTitle">The copy is learning.</h3>
+          <p id="fragmentText"></p>
+        </aside>
       </section>
 
       <section id="finalChoiceScreen" class="screen screen--decision" hidden aria-labelledby="decisionTitle">
